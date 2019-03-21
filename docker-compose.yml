@@ -1,0 +1,36 @@
+version: "2"
+
+services:
+
+  ab-webserver:
+    build: ./docker/nginx
+    container_name: ab-webserver
+    restart: on-failure:3
+    volumes:
+    - ./docker/data/logs/nginx:/var/log/nginx
+    volumes_from:
+    - ab-app
+    links:
+    - ab-app:app
+    ports:
+    - "80:80"
+
+  ab-app:
+    container_name: ab-app
+    build: ./docker/app
+    volumes:
+    - ./:/app
+    ports:
+    - "9000:9000"
+
+  ab-database:
+    container_name: ab-database
+    build: ./docker/app
+    volumes:
+    - ./docker/data/sqlite:/db/
+
+  composer:
+    build: ./docker/composer
+    container_name: ab-composer
+    volumes_from:
+    - ab-app:rw
